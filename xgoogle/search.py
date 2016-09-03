@@ -29,7 +29,7 @@ class ParseError(SearchError):
     self.tag attribute contains BeautifulSoup object with the most relevant tag that failed to parse
     Thrown only in debug mode
     """
-     
+
     def __init__(self, msg, tag):
         self.msg = msg
         self.tag = tag
@@ -69,7 +69,7 @@ class GoogleSearch(object):
         self._last_from = 0
         self._lang = lang
         self._tld = tld
-        
+
         if re_search_strings:
             self._re_search_strings = re_search_strings
         elif lang == "de":
@@ -123,17 +123,17 @@ class GoogleSearch(object):
             except ValueError:
                 raise SearchError, "Wrong parameter to first_indexed_in_previous: %s" % (str(interval))
             self._first_indexed_in_previous = 'm' + str(interval)
-    
+
     first_indexed_in_previous = property(_get_first_indexed_in_previous, _set_first_indexed_in_previous, doc="possible values: day, week, month, year, or a float value of months")
-    
+
     def _get_filetype(self):
         return self._filetype
 
     def _set_filetype(self, filetype):
         self._filetype = filetype
-    
+
     filetype = property(_get_filetype, _set_filetype, doc="file extension to search for")
-    
+
     def _get_results_per_page(self):
         return self._results_per_page
 
@@ -148,10 +148,10 @@ class GoogleSearch(object):
             return []
         MAX_VALUE = 1000000
         page = self._get_results_page()
-        #search_info = self._extract_info(page)
+        # search_info = self._extract_info(page)
         results = self._extract_results(page)
-        search_info = {'from': self.results_per_page*self._page,
-                       'to': self.results_per_page*self._page + len(results),
+        search_info = {'from': self.results_per_page * self._page,
+                       'to': self.results_per_page * self._page + len(results),
                        'total': MAX_VALUE}
         if not self.results_info:
             self.results_info = search_info
@@ -191,16 +191,16 @@ class GoogleSearch(object):
                            'num': self._results_per_page,
                            'tld' : self._tld,
                            'lang' : self._lang }]
-        
+
         # possibly extend url with optional properties
         if self._first_indexed_in_previous:
             safe_url.extend(["&as_qdr=", self._first_indexed_in_previous])
         if self._filetype:
             safe_url.extend(["&as_filetype=", self._filetype])
-        
+
         safe_url = "".join(safe_url)
         self._last_search_url = safe_url
-        
+
         try:
             page = self.browser.get_page(safe_url)
         except BrowserError, e:
@@ -226,7 +226,7 @@ class GoogleSearch(object):
         return {'from': int(matches.group(1)), 'to': int(matches.group(2)), 'total': int(matches.group(3))}
 
     def _extract_results(self, soup):
-        results = soup.findAll('li', {'class': 'g'})
+        results = soup.findAll('div', {'class': 'g'})
         ret_res = []
         for result in results:
             eres = self._extract_result(result)
@@ -376,4 +376,4 @@ class BlogSearch(GoogleSearch):
 
         desc = ''.join(s for s in desc_strs if s)
         return self._html_unescape(desc)
-        
+
